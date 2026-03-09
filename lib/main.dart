@@ -1,3 +1,4 @@
+import 'ai_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -69,7 +70,8 @@ class MyApp extends StatelessWidget {
               elevation: 0,
             ),
           ),
-          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: const AuthGate(),
         );
       },
@@ -195,7 +197,8 @@ class _HabitsPageState extends State<HabitsPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Eliminar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -218,7 +221,8 @@ class _HabitsPageState extends State<HabitsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => HabitProgressPage(habitId: habitId, habitData: habitData),
+        builder: (_) =>
+            HabitProgressPage(habitId: habitId, habitData: habitData),
       ),
     );
   }
@@ -227,7 +231,8 @@ class _HabitsPageState extends State<HabitsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => HabitHistoryPage(habitId: habitId, habitData: habitData),
+        builder: (_) =>
+            HabitHistoryPage(habitId: habitId, habitData: habitData),
       ),
     );
   }
@@ -275,6 +280,11 @@ class _HabitsPageState extends State<HabitsPage> {
             label: 'Estadísticas',
           ),
           NavigationDestination(
+            icon: Icon(Icons.auto_awesome_outlined),
+            selectedIcon: Icon(Icons.auto_awesome),
+            label: 'IA',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Perfil',
@@ -291,6 +301,8 @@ class _HabitsPageState extends State<HabitsPage> {
       case 1:
         return const StatsPage();
       case 2:
+        return const AIPage();
+      case 3:
         return const ProfilePage();
       default:
         return _buildHabitsTab();
@@ -310,7 +322,8 @@ class _HabitsPageState extends State<HabitsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(Icons.error_outline,
+                          size: 64, color: Colors.red),
                       const SizedBox(height: 16),
                       Text('Error: ${snapshot.error}'),
                       const SizedBox(height: 16),
@@ -333,7 +346,8 @@ class _HabitsPageState extends State<HabitsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.emoji_nature, size: 80, color: Colors.grey[300]),
+                      Icon(Icons.emoji_nature,
+                          size: 80, color: Colors.grey[300]),
                       const SizedBox(height: 16),
                       Text(
                         '¡Bienvenido!',
@@ -385,7 +399,8 @@ class _HabitsPageState extends State<HabitsPage> {
             children: [
               Text(
                 _formatDate(_selectedDate),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               TextButton.icon(
                 onPressed: () {
@@ -409,7 +424,9 @@ class _HabitsPageState extends State<HabitsPage> {
                 final isFuture = date.isAfter(DateTime.now());
 
                 return GestureDetector(
-                  onTap: isFuture ? null : () => setState(() => _selectedDate = date),
+                  onTap: isFuture
+                      ? null
+                      : () => setState(() => _selectedDate = date),
                   child: Container(
                     width: 55,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -431,7 +448,9 @@ class _HabitsPageState extends State<HabitsPage> {
                             fontSize: 11,
                             color: isSelected
                                 ? Colors.white70
-                                : (isFuture ? Colors.grey[400] : Colors.grey[600]),
+                                : (isFuture
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600]),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -467,7 +486,8 @@ class _HabitsPageState extends State<HabitsPage> {
     final reminderHour = data['reminderHour'];
     final reminderMinute = data['reminderMinute'];
 
-    final isCompletedForSelectedDate = _service.isCompletedForDate(history, _selectedDate);
+    final isCompletedForSelectedDate =
+        _service.isCompletedForDate(history, _selectedDate);
     final hasReminder = reminderHour != null && reminderMinute != null;
 
     return Dismissible(
@@ -496,7 +516,8 @@ class _HabitsPageState extends State<HabitsPage> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
+                child: const Text('Eliminar',
+                    style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -668,7 +689,8 @@ class _HabitsPageState extends State<HabitsPage> {
                             children: [
                               Icon(Icons.delete, size: 20, color: Colors.red),
                               SizedBox(width: 12),
-                              Text('Eliminar', style: TextStyle(color: Colors.red)),
+                              Text('Eliminar',
+                                  style: TextStyle(color: Colors.red)),
                             ],
                           ),
                         ),
@@ -692,7 +714,8 @@ class _HabitsPageState extends State<HabitsPage> {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -751,8 +774,18 @@ class _HabitsPageState extends State<HabitsPage> {
 
   String _getMonthName(int month) {
     const months = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre'
     ];
     return months[month - 1];
   }
@@ -881,7 +914,8 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 DropdownMenuItem(value: 'weekly', child: Text('📆 Semanal')),
                 DropdownMenuItem(value: 'monthly', child: Text('🗓️ Mensual')),
               ],
-              onChanged: (v) => setState(() => selectedFrequency = v ?? 'daily'),
+              onChanged: (v) =>
+                  setState(() => selectedFrequency = v ?? 'daily'),
             ),
             const SizedBox(height: 16),
             Container(
@@ -901,7 +935,8 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                       ? 'Recordatorio: ${reminderTime!.format(context)}'
                       : 'Agregar recordatorio',
                   style: TextStyle(
-                    color: reminderTime != null ? Colors.teal : Colors.grey[700],
+                    color:
+                        reminderTime != null ? Colors.teal : Colors.grey[700],
                   ),
                 ),
                 trailing: reminderTime != null
@@ -1053,7 +1088,8 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
                 DropdownMenuItem(value: 'weekly', child: Text('📆 Semanal')),
                 DropdownMenuItem(value: 'monthly', child: Text('🗓️ Mensual')),
               ],
-              onChanged: (v) => setState(() => selectedFrequency = v ?? 'daily'),
+              onChanged: (v) =>
+                  setState(() => selectedFrequency = v ?? 'daily'),
             ),
             const SizedBox(height: 16),
             Container(
@@ -1260,9 +1296,12 @@ class StatsPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildMiniStat(Icons.check, '$progress', 'Total', Colors.green),
-                            _buildMiniStat(Icons.local_fire_department, '$streak', 'Racha', Colors.orange),
-                            _buildMiniStat(Icons.emoji_events, '$bestHabitStreak', 'Mejor', Colors.amber),
+                            _buildMiniStat(Icons.check, '$progress', 'Total',
+                                Colors.green),
+                            _buildMiniStat(Icons.local_fire_department,
+                                '$streak', 'Racha', Colors.orange),
+                            _buildMiniStat(Icons.emoji_events,
+                                '$bestHabitStreak', 'Mejor', Colors.amber),
                           ],
                         ),
                       ],
@@ -1277,7 +1316,8 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -1307,7 +1347,8 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMiniStat(IconData icon, String value, String label, Color color) {
+  Widget _buildMiniStat(
+      IconData icon, String value, String label, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
