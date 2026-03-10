@@ -1,3 +1,19 @@
+# Firebase credentials - SENSITIVE
+google-services.json
+GoogleService-Info.plist
+lib/firebase_options.dart
+lib/firebase_config.dart
+
+# Keys
+*.keystore
+*.jks
+key.properties
+android/key.properties
+
+# Environment variables
+.env
+*.env
+
 # Miscellaneous
 *.class
 *.log
