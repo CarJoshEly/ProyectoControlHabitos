@@ -187,12 +187,13 @@ class _HabitSuggesterPageState extends State<HabitSuggesterPage> {
     'Ingeniería en Sistemas',
     'Medicina',
     'Derecho',
-    'Administración de Empresas',
+    'Gestion Estrategica de Empresas',
     'Psicología',
     'Ingeniería Civil',
     'Enfermería',
-    'Contaduría',
+    'Mercadotecnia',
     'Arquitectura',
+    'Ingeniería Industrial',
     'Otra',
   ];
 
@@ -666,12 +667,12 @@ class RoutineGeneratorPage extends StatefulWidget {
 class _RoutineGeneratorPageState extends State<RoutineGeneratorPage> {
   final _carreraCtrl = TextEditingController();
   final _objetivosCtrl = TextEditingController();
-  String _semestre = '1er';
+  String _trimestre = '1er';
   final _service = GeminiService();
   String _resultado = '';
   bool _loading = false;
 
-  final List<String> _semestres = ['1er', '2do', '3er', '4to', '5to', '6to', '7mo', '8vo', '9no', '10mo'];
+  final List<String> _trimestres = ['1er', '2do', '3er', '4to', '5to', '6to', '7mo', '8vo', '9no', '10mo'];
   final List<String> _carreras = [
     'Ingeniería en Sistemas',
     'Medicina',
@@ -719,7 +720,7 @@ class _RoutineGeneratorPageState extends State<RoutineGeneratorPage> {
 
     final resultado = await _service.generarRutina(
       carrera: _carreraCtrl.text,
-      semestre: _semestre,
+      trimestre: _trimestre,
       diasLibres: diasSeleccionados,
       objetivos: _objetivosCtrl.text,
     );
@@ -750,14 +751,14 @@ class _RoutineGeneratorPageState extends State<RoutineGeneratorPage> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _semestre,
+              value: _trimestre,
               decoration: InputDecoration(
-                labelText: 'Semestre actual',
+                labelText: 'Trimeestre actual',
                 prefixIcon: const Icon(Icons.calendar_today),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              items: _semestres.map((s) => DropdownMenuItem(value: s, child: Text('$s semestre'))).toList(),
-              onChanged: (v) => setState(() => _semestre = v ?? '1er'),
+              items: _trimestres.map((s) => DropdownMenuItem(value: s, child: Text('$s trimestre'))).toList(),
+              onChanged: (v) => setState(() => _trimestre = v ?? '1er'),
             ),
             const SizedBox(height: 16),
             const Text('Días con más tiempo libre:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -779,7 +780,7 @@ class _RoutineGeneratorPageState extends State<RoutineGeneratorPage> {
               controller: _objetivosCtrl,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: 'Tus objetivos este semestre',
+                labelText: 'Tus objetivos este trimestre',
                 hintText: 'Ej: Mejorar mis notas, hacer ejercicio, reducir el estrés...',
                 prefixIcon: const Icon(Icons.flag),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

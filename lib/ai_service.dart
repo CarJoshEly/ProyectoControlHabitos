@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GeminiService {
-  static const String _apiKey = 'AIzaSyD3cwu0dJPC4bvSXelKk1zO1D6bZ5eqSUI';
+  static const String _apiKey = 'AIzaSyDggKrd1D3x5pgb5ZMPrkW8ODWf3m3dRfM';
   static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
   static const String _systemContext = '''
 Eres un asistente de productividad universitaria para estudiantes de la UNICAH 
@@ -29,10 +29,13 @@ Adapta tus respuestas al contexto universitario hondureño.
           ],
           'generationConfig': {
             'temperature': 0.7,
-            'maxOutputTokens': 1024,
+            'maxOutputTokens': 512,
           }
         }),
       );
+
+      print('STATUS: ${response.statusCode}');
+      print('BODY: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -121,14 +124,14 @@ Máximo 3 párrafos cortos.
   // 4. GENERADOR DE RUTINAS
   Future<String> generarRutina({
     required String carrera,
-    required String semestre,
+    required String trimestre,
     required List<String> diasLibres,
     required String objetivos,
   }) async {
     final dias = diasLibres.isEmpty ? 'No especificados' : diasLibres.join(', ');
     final prompt = '''
 Crea una rutina semanal detallada para un estudiante de $carrera, 
-en $semestre semestre de la UNICAH.
+en $trimestre trimestre de la UNICAH.
 Días con más tiempo libre: $dias
 Objetivos del estudiante: "$objetivos"
 

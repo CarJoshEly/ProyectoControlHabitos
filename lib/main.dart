@@ -14,6 +14,20 @@ import 'theme_provider.dart';
 import 'notification_service.dart';
 import 'fcm_service.dart';
 
+// ============================================================
+// COLORES INSTITUCIONALES UNICAH
+// ============================================================
+class UnicahColors {
+  static const Color azulOscuro   = Color(0xFF003087); // Azul marino institucional
+  static const Color azulMedio    = Color(0xFF0057B8); // Azul brillante
+  static const Color azulClaro    = Color(0xFF4A90D9); // Azul claro acento
+  static const Color dorado       = Color(0xFFC8A84B); // Dorado institucional
+  static const Color doradoClaro  = Color(0xFFE8C96A); // Dorado claro
+  static const Color blanco       = Color(0xFFFFFFFF);
+  static const Color grisClaro    = Color(0xFFF5F5F5);
+  static const Color grisMedio    = Color(0xFFE0E0E0);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: firebaseConfig);
@@ -44,34 +58,143 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, _) {
         return MaterialApp(
-          title: 'Control de Hábitos',
+          title: 'Control de Hábitos UNICAH',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
             useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: UnicahColors.azulOscuro,
+              primary: UnicahColors.azulOscuro,
+              secondary: UnicahColors.dorado,
+              tertiary: UnicahColors.azulMedio,
+              background: UnicahColors.grisClaro,
+              surface: UnicahColors.blanco,
+            ),
             appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
+              backgroundColor: UnicahColors.azulOscuro,
+              foregroundColor: UnicahColors.blanco,
               elevation: 0,
+              centerTitle: true,
+              titleTextStyle: TextStyle(
+                color: UnicahColors.blanco,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+              iconTheme: IconThemeData(color: UnicahColors.blanco),
             ),
             floatingActionButtonTheme: const FloatingActionButtonThemeData(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
+              backgroundColor: UnicahColors.dorado,
+              foregroundColor: UnicahColors.blanco,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: UnicahColors.azulOscuro,
+                foregroundColor: UnicahColors.blanco,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: UnicahColors.azulMedio,
+              ),
+            ),
+            checkboxTheme: CheckboxThemeData(
+              fillColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return UnicahColors.azulMedio;
+                }
+                return null;
+              }),
+            ),
+            navigationBarTheme: NavigationBarThemeData(
+              backgroundColor: UnicahColors.blanco,
+              indicatorColor: UnicahColors.azulOscuro.withOpacity(0.15),
+              iconTheme: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const IconThemeData(color: UnicahColors.azulOscuro);
+                }
+                return const IconThemeData(color: Colors.grey);
+              }),
+              labelTextStyle: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const TextStyle(
+                    color: UnicahColors.azulOscuro,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  );
+                }
+                return const TextStyle(color: Colors.grey, fontSize: 12);
+              }),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: UnicahColors.azulMedio, width: 2),
+              ),
+              labelStyle: const TextStyle(color: UnicahColors.azulOscuro),
+            ),
+            chipTheme: ChipThemeData(
+              selectedColor: UnicahColors.azulOscuro.withOpacity(0.2),
+              checkmarkColor: UnicahColors.azulOscuro,
+            ),
+            cardTheme: CardThemeData(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            progressIndicatorTheme: const ProgressIndicatorThemeData(
+              color: UnicahColors.azulMedio,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.teal,
+              seedColor: UnicahColors.azulMedio,
+              primary: UnicahColors.azulMedio,
+              secondary: UnicahColors.dorado,
               brightness: Brightness.dark,
             ),
             appBarTheme: AppBarTheme(
               backgroundColor: Colors.grey[900],
-              foregroundColor: Colors.white,
+              foregroundColor: UnicahColors.blanco,
               elevation: 0,
+              centerTitle: true,
+              titleTextStyle: const TextStyle(
+                color: UnicahColors.blanco,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: UnicahColors.dorado,
+              foregroundColor: UnicahColors.blanco,
+            ),
+            navigationBarTheme: NavigationBarThemeData(
+              indicatorColor: UnicahColors.azulMedio.withOpacity(0.3),
+              iconTheme: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const IconThemeData(color: UnicahColors.dorado);
+                }
+                return const IconThemeData(color: Colors.grey);
+              }),
+              labelTextStyle: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const TextStyle(
+                    color: UnicahColors.dorado,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  );
+                }
+                return const TextStyle(color: Colors.grey, fontSize: 12);
+              }),
             ),
           ),
-          themeMode:
-              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: const AuthGate(),
         );
       },
@@ -93,7 +216,7 @@ class AuthGate extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(color: UnicahColors.azulOscuro),
                   SizedBox(height: 16),
                   Text('Cargando...'),
                 ],
@@ -142,7 +265,7 @@ class _HabitsPageState extends State<HabitsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✓ Hábito creado exitosamente'),
-            backgroundColor: Colors.green,
+            backgroundColor: UnicahColors.azulMedio,
           ),
         );
       }
@@ -168,7 +291,7 @@ class _HabitsPageState extends State<HabitsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✓ Hábito actualizado'),
-            backgroundColor: Colors.blue,
+            backgroundColor: UnicahColors.azulOscuro,
           ),
         );
       }
@@ -197,8 +320,7 @@ class _HabitsPageState extends State<HabitsPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child:
-                const Text('Eliminar', style: TextStyle(color: Colors.white)),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -221,8 +343,7 @@ class _HabitsPageState extends State<HabitsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            HabitProgressPage(habitId: habitId, habitData: habitData),
+        builder: (_) => HabitProgressPage(habitId: habitId, habitData: habitData),
       ),
     );
   }
@@ -231,8 +352,7 @@ class _HabitsPageState extends State<HabitsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            HabitHistoryPage(habitId: habitId, habitData: habitData),
+        builder: (_) => HabitHistoryPage(habitId: habitId, habitData: habitData),
       ),
     );
   }
@@ -242,13 +362,13 @@ class _HabitsPageState extends State<HabitsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis Hábitos'),
-        centerTitle: true,
         actions: [
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, _) {
               return IconButton(
                 icon: Icon(
                   themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: UnicahColors.dorado,
                 ),
                 onPressed: () => themeProvider.toggleTheme(),
                 tooltip: 'Cambiar tema',
@@ -322,8 +442,7 @@ class _HabitsPageState extends State<HabitsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline,
-                          size: 64, color: Colors.red),
+                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
                       const SizedBox(height: 16),
                       Text('Error: ${snapshot.error}'),
                       const SizedBox(height: 16),
@@ -337,7 +456,7 @@ class _HabitsPageState extends State<HabitsPage> {
               }
 
               if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator(color: UnicahColors.azulOscuro));
               }
 
               final habits = snapshot.data!.docs;
@@ -346,8 +465,7 @@ class _HabitsPageState extends State<HabitsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.emoji_nature,
-                          size: 80, color: Colors.grey[300]),
+                      Icon(Icons.emoji_nature, size: 80, color: Colors.grey[300]),
                       const SizedBox(height: 16),
                       Text(
                         '¡Bienvenido!',
@@ -388,8 +506,12 @@ class _HabitsPageState extends State<HabitsPage> {
   Widget _buildCalendar() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [UnicahColors.azulOscuro, UnicahColors.azulMedio],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,15 +521,18 @@ class _HabitsPageState extends State<HabitsPage> {
             children: [
               Text(
                 _formatDate(_selectedDate),
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: UnicahColors.blanco,
+                ),
               ),
               TextButton.icon(
                 onPressed: () {
                   setState(() => _selectedDate = DateTime.now());
                 },
-                icon: const Icon(Icons.today, size: 18),
-                label: const Text('Hoy'),
+                icon: const Icon(Icons.today, size: 18, color: UnicahColors.dorado),
+                label: const Text('Hoy', style: TextStyle(color: UnicahColors.dorado)),
               ),
             ],
           ),
@@ -424,19 +549,17 @@ class _HabitsPageState extends State<HabitsPage> {
                 final isFuture = date.isAfter(DateTime.now());
 
                 return GestureDetector(
-                  onTap: isFuture
-                      ? null
-                      : () => setState(() => _selectedDate = date),
+                  onTap: isFuture ? null : () => setState(() => _selectedDate = date),
                   child: Container(
                     width: 55,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Colors.teal
-                          : (isToday ? Colors.teal.withOpacity(0.2) : null),
+                          ? UnicahColors.dorado
+                          : (isToday ? UnicahColors.blanco.withOpacity(0.2) : null),
                       borderRadius: BorderRadius.circular(12),
                       border: isToday && !isSelected
-                          ? Border.all(color: Colors.teal, width: 2)
+                          ? Border.all(color: UnicahColors.dorado, width: 2)
                           : null,
                     ),
                     child: Column(
@@ -447,10 +570,10 @@ class _HabitsPageState extends State<HabitsPage> {
                           style: TextStyle(
                             fontSize: 11,
                             color: isSelected
-                                ? Colors.white70
+                                ? UnicahColors.azulOscuro
                                 : (isFuture
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600]),
+                                    ? UnicahColors.blanco.withOpacity(0.4)
+                                    : UnicahColors.blanco.withOpacity(0.8)),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -460,8 +583,10 @@ class _HabitsPageState extends State<HabitsPage> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: isSelected
-                                ? Colors.white
-                                : (isFuture ? Colors.grey[400] : null),
+                                ? UnicahColors.azulOscuro
+                                : (isFuture
+                                    ? UnicahColors.blanco.withOpacity(0.4)
+                                    : UnicahColors.blanco),
                           ),
                         ),
                       ],
@@ -486,8 +611,7 @@ class _HabitsPageState extends State<HabitsPage> {
     final reminderHour = data['reminderHour'];
     final reminderMinute = data['reminderMinute'];
 
-    final isCompletedForSelectedDate =
-        _service.isCompletedForDate(history, _selectedDate);
+    final isCompletedForSelectedDate = _service.isCompletedForDate(history, _selectedDate);
     final hasReminder = reminderHour != null && reminderMinute != null;
 
     return Dismissible(
@@ -516,8 +640,7 @@ class _HabitsPageState extends State<HabitsPage> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Eliminar',
-                    style: TextStyle(color: Colors.white)),
+                child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -530,7 +653,7 @@ class _HabitsPageState extends State<HabitsPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: isCompletedForSelectedDate
-              ? const BorderSide(color: Colors.green, width: 2)
+              ? const BorderSide(color: UnicahColors.azulMedio, width: 2)
               : BorderSide.none,
         ),
         child: InkWell(
@@ -550,15 +673,13 @@ class _HabitsPageState extends State<HabitsPage> {
                         value: isCompletedForSelectedDate,
                         onChanged: (v) async {
                           await _service.toggleHabitCompletedForDate(
-                            id,
-                            v ?? false,
-                            _selectedDate,
+                            id, v ?? false, _selectedDate,
                           );
                         },
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        activeColor: Colors.green,
+                        activeColor: UnicahColors.azulMedio,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -577,37 +698,25 @@ class _HabitsPageState extends State<HabitsPage> {
                                     decoration: isCompletedForSelectedDate
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
-                                    color: isCompletedForSelectedDate
-                                        ? Colors.grey
-                                        : null,
+                                    color: isCompletedForSelectedDate ? Colors.grey : null,
                                   ),
                                 ),
                               ),
                               if (hasReminder)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.1),
+                                    color: UnicahColors.azulOscuro.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(
-                                        Icons.notifications_active,
-                                        size: 14,
-                                        color: Colors.blue,
-                                      ),
+                                      const Icon(Icons.notifications_active, size: 14, color: UnicahColors.azulMedio),
                                       const SizedBox(width: 4),
                                       Text(
                                         '${reminderHour.toString().padLeft(2, '0')}:${reminderMinute.toString().padLeft(2, '0')}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.blue,
-                                        ),
+                                        style: const TextStyle(fontSize: 11, color: UnicahColors.azulMedio),
                                       ),
                                     ],
                                   ),
@@ -619,10 +728,7 @@ class _HabitsPageState extends State<HabitsPage> {
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
                                 description,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[600],
-                                ),
+                                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -632,68 +738,21 @@ class _HabitsPageState extends State<HabitsPage> {
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       onSelected: (value) {
                         switch (value) {
-                          case 'edit':
-                            _editHabit(id, data);
-                            break;
-                          case 'progress':
-                            _viewProgress(id, data);
-                            break;
-                          case 'history':
-                            _viewHistory(id, data);
-                            break;
-                          case 'delete':
-                            _deleteHabit(id);
-                            break;
+                          case 'edit': _editHabit(id, data); break;
+                          case 'progress': _viewProgress(id, data); break;
+                          case 'history': _viewHistory(id, data); break;
+                          case 'delete': _deleteHabit(id); break;
                         }
                       },
                       itemBuilder: (_) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 20),
-                              SizedBox(width: 12),
-                              Text('Editar'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'progress',
-                          child: Row(
-                            children: [
-                              Icon(Icons.show_chart, size: 20),
-                              SizedBox(width: 12),
-                              Text('Ver Progreso'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'history',
-                          child: Row(
-                            children: [
-                              Icon(Icons.history, size: 20),
-                              SizedBox(width: 12),
-                              Text('Ver Historial'),
-                            ],
-                          ),
-                        ),
+                        const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 20), SizedBox(width: 12), Text('Editar')])),
+                        const PopupMenuItem(value: 'progress', child: Row(children: [Icon(Icons.show_chart, size: 20), SizedBox(width: 12), Text('Ver Progreso')])),
+                        const PopupMenuItem(value: 'history', child: Row(children: [Icon(Icons.history, size: 20), SizedBox(width: 12), Text('Ver Historial')])),
                         const PopupMenuDivider(),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20, color: Colors.red),
-                              SizedBox(width: 12),
-                              Text('Eliminar',
-                                  style: TextStyle(color: Colors.red)),
-                            ],
-                          ),
-                        ),
+                        const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, size: 20, color: Colors.red), SizedBox(width: 12), Text('Eliminar', style: TextStyle(color: Colors.red))])),
                       ],
                     ),
                   ],
@@ -701,31 +760,19 @@ class _HabitsPageState extends State<HabitsPage> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildStatChip(
-                      Icons.local_fire_department,
-                      '$streak días',
-                      Colors.orange,
-                    ),
+                    _buildStatChip(Icons.local_fire_department, '$streak días', Colors.orange),
                     const SizedBox(width: 8),
-                    _buildStatChip(
-                      Icons.check_circle,
-                      '$progress total',
-                      Colors.green,
-                    ),
+                    _buildStatChip(Icons.check_circle, '$progress total', UnicahColors.azulMedio),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: UnicahColors.dorado.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         _getFrequencyLabel(frequency),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
-                        ),
+                        style: const TextStyle(fontSize: 12, color: UnicahColors.azulOscuro, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -750,22 +797,13 @@ class _HabitsPageState extends State<HabitsPage> {
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day} de ${_getMonthName(date.month)} ${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day} de ${_getMonthName(date.month)} ${date.year}';
 
   String _getDayName(DateTime date) {
     const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -773,41 +811,25 @@ class _HabitsPageState extends State<HabitsPage> {
   }
 
   String _getMonthName(int month) {
-    const months = [
-      'enero',
-      'febrero',
-      'marzo',
-      'abril',
-      'mayo',
-      'junio',
-      'julio',
-      'agosto',
-      'septiembre',
-      'octubre',
-      'noviembre',
-      'diciembre'
-    ];
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     return months[month - 1];
   }
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
+  bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
 
   String _getFrequencyLabel(String freq) {
     switch (freq) {
-      case 'daily':
-        return 'Diario';
-      case 'weekly':
-        return 'Semanal';
-      case 'monthly':
-        return 'Mensual';
-      default:
-        return freq;
+      case 'daily': return 'Diario';
+      case 'weekly': return 'Semanal';
+      case 'monthly': return 'Mensual';
+      default: return freq;
     }
   }
 }
 
+// ============================================================
+// DIÁLOGO AGREGAR HÁBITO
+// ============================================================
 class AddHabitDialog extends StatefulWidget {
   const AddHabitDialog({super.key});
 
@@ -843,18 +865,14 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
         return Theme(
           data: Theme.of(context).copyWith(
             timePickerTheme: TimePickerThemeData(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null) {
-      setState(() => reminderTime = picked);
-    }
+    if (picked != null) setState(() => reminderTime = picked);
   }
 
   @override
@@ -863,7 +881,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Row(
         children: [
-          Icon(Icons.add_circle, color: Colors.teal),
+          Icon(Icons.add_circle, color: UnicahColors.azulOscuro),
           SizedBox(width: 8),
           Text('Nuevo Hábito'),
         ],
@@ -880,9 +898,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 labelText: 'Nombre del Hábito *',
                 hintText: 'Ej. Hacer ejercicio',
                 prefixIcon: const Icon(Icons.edit),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 16),
@@ -893,9 +909,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 labelText: 'Descripción (opcional)',
                 hintText: 'Ej. 30 minutos de cardio',
                 prefixIcon: const Icon(Icons.description),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               maxLines: 2,
             ),
@@ -905,17 +919,14 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               decoration: InputDecoration(
                 labelText: 'Frecuencia',
                 prefixIcon: const Icon(Icons.repeat),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               items: const [
                 DropdownMenuItem(value: 'daily', child: Text('📅 Diario')),
                 DropdownMenuItem(value: 'weekly', child: Text('📆 Semanal')),
                 DropdownMenuItem(value: 'monthly', child: Text('🗓️ Mensual')),
               ],
-              onChanged: (v) =>
-                  setState(() => selectedFrequency = v ?? 'daily'),
+              onChanged: (v) => setState(() => selectedFrequency = v ?? 'daily'),
             ),
             const SizedBox(height: 16),
             Container(
@@ -925,25 +936,15 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               ),
               child: ListTile(
                 leading: Icon(
-                  reminderTime != null
-                      ? Icons.notifications_active
-                      : Icons.notifications_none,
-                  color: reminderTime != null ? Colors.teal : Colors.grey,
+                  reminderTime != null ? Icons.notifications_active : Icons.notifications_none,
+                  color: reminderTime != null ? UnicahColors.azulOscuro : Colors.grey,
                 ),
                 title: Text(
-                  reminderTime != null
-                      ? 'Recordatorio: ${reminderTime!.format(context)}'
-                      : 'Agregar recordatorio',
-                  style: TextStyle(
-                    color:
-                        reminderTime != null ? Colors.teal : Colors.grey[700],
-                  ),
+                  reminderTime != null ? 'Recordatorio: ${reminderTime!.format(context)}' : 'Agregar recordatorio',
+                  style: TextStyle(color: reminderTime != null ? UnicahColors.azulOscuro : Colors.grey[700]),
                 ),
                 trailing: reminderTime != null
-                    ? IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () => setState(() => reminderTime = null),
-                      )
+                    ? IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => setState(() => reminderTime = null))
                     : const Icon(Icons.chevron_right),
                 onTap: _selectTime,
               ),
@@ -952,19 +953,11 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         ElevatedButton.icon(
           onPressed: () {
             if (nameCtrl.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('El nombre es requerido'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El nombre es requerido'), backgroundColor: Colors.orange));
               return;
             }
             Navigator.pop(context, {
@@ -976,19 +969,15 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
           },
           icon: const Icon(Icons.check),
           label: const Text('Crear'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.teal,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
         ),
       ],
     );
   }
 }
 
+// ============================================================
+// DIÁLOGO EDITAR HÁBITO
+// ============================================================
 class EditHabitDialog extends StatefulWidget {
   final Map<String, dynamic> habit;
   const EditHabitDialog({super.key, required this.habit});
@@ -1009,12 +998,9 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
     nameCtrl = TextEditingController(text: widget.habit['name']);
     descCtrl = TextEditingController(text: widget.habit['description']);
     selectedFrequency = widget.habit['frequency'] ?? 'daily';
-
     final hour = widget.habit['reminderHour'];
     final minute = widget.habit['reminderMinute'];
-    if (hour != null && minute != null) {
-      reminderTime = TimeOfDay(hour: hour, minute: minute);
-    }
+    if (hour != null && minute != null) reminderTime = TimeOfDay(hour: hour, minute: minute);
   }
 
   @override
@@ -1029,9 +1015,7 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
       context: context,
       initialTime: reminderTime ?? const TimeOfDay(hour: 8, minute: 0),
     );
-    if (picked != null) {
-      setState(() => reminderTime = picked);
-    }
+    if (picked != null) setState(() => reminderTime = picked);
   }
 
   @override
@@ -1040,7 +1024,7 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Row(
         children: [
-          Icon(Icons.edit, color: Colors.blue),
+          Icon(Icons.edit, color: UnicahColors.azulMedio),
           SizedBox(width: 8),
           Text('Editar Hábito'),
         ],
@@ -1055,9 +1039,7 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
               decoration: InputDecoration(
                 labelText: 'Nombre del Hábito',
                 prefixIcon: const Icon(Icons.edit),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 16),
@@ -1067,9 +1049,7 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
               decoration: InputDecoration(
                 labelText: 'Descripción',
                 prefixIcon: const Icon(Icons.description),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               maxLines: 2,
             ),
@@ -1079,17 +1059,14 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
               decoration: InputDecoration(
                 labelText: 'Frecuencia',
                 prefixIcon: const Icon(Icons.repeat),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               items: const [
                 DropdownMenuItem(value: 'daily', child: Text('📅 Diario')),
                 DropdownMenuItem(value: 'weekly', child: Text('📆 Semanal')),
                 DropdownMenuItem(value: 'monthly', child: Text('🗓️ Mensual')),
               ],
-              onChanged: (v) =>
-                  setState(() => selectedFrequency = v ?? 'daily'),
+              onChanged: (v) => setState(() => selectedFrequency = v ?? 'daily'),
             ),
             const SizedBox(height: 16),
             Container(
@@ -1099,21 +1076,12 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
               ),
               child: ListTile(
                 leading: Icon(
-                  reminderTime != null
-                      ? Icons.notifications_active
-                      : Icons.notifications_none,
-                  color: reminderTime != null ? Colors.teal : Colors.grey,
+                  reminderTime != null ? Icons.notifications_active : Icons.notifications_none,
+                  color: reminderTime != null ? UnicahColors.azulOscuro : Colors.grey,
                 ),
-                title: Text(
-                  reminderTime != null
-                      ? 'Recordatorio: ${reminderTime!.format(context)}'
-                      : 'Sin recordatorio',
-                ),
+                title: Text(reminderTime != null ? 'Recordatorio: ${reminderTime!.format(context)}' : 'Sin recordatorio'),
                 trailing: reminderTime != null
-                    ? IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () => setState(() => reminderTime = null),
-                      )
+                    ? IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => setState(() => reminderTime = null))
                     : const Icon(Icons.chevron_right),
                 onTap: _selectTime,
               ),
@@ -1122,16 +1090,11 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         ElevatedButton.icon(
           onPressed: () {
             if (nameCtrl.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('El nombre es requerido')),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El nombre es requerido')));
               return;
             }
             Navigator.pop(context, {
@@ -1143,19 +1106,16 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
           },
           icon: const Icon(Icons.save),
           label: const Text('Guardar'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: UnicahColors.azulMedio),
         ),
       ],
     );
   }
 }
 
+// ============================================================
+// PÁGINA DE ESTADÍSTICAS
+// ============================================================
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});
 
@@ -1167,7 +1127,7 @@ class StatsPage extends StatelessWidget {
       stream: service.getHabitsStream(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: UnicahColors.azulOscuro));
         }
 
         final habits = snapshot.data!.docs;
@@ -1191,15 +1151,9 @@ class StatsPage extends StatelessWidget {
               children: [
                 Icon(Icons.bar_chart, size: 80, color: Colors.grey[300]),
                 const SizedBox(height: 16),
-                const Text(
-                  'Sin estadísticas',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                const Text('Sin estadísticas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text(
-                  'Crea hábitos para ver tus estadísticas',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                Text('Crea hábitos para ver tus estadísticas', style: TextStyle(color: Colors.grey[600])),
               ],
             ),
           );
@@ -1210,63 +1164,47 @@ class StatsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Resumen General',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+              // Banner UNICAH
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [UnicahColors.azulOscuro, UnicahColors.azulMedio],
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.school, color: UnicahColors.dorado, size: 28),
+                    SizedBox(width: 10),
+                    Text(
+                      'Tu Progreso UNICAH',
+                      style: TextStyle(color: UnicahColors.blanco, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 16),
+              Text('Resumen General', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      'Hábitos Activos',
-                      '$totalHabits',
-                      Icons.favorite,
-                      Colors.pink,
-                    ),
-                  ),
+                  Expanded(child: _buildStatCard('Hábitos Activos', '$totalHabits', Icons.favorite, UnicahColors.azulOscuro)),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      'Total Completados',
-                      '$totalCompleted',
-                      Icons.check_circle,
-                      Colors.green,
-                    ),
-                  ),
+                  Expanded(child: _buildStatCard('Total Completados', '$totalCompleted', Icons.check_circle, UnicahColors.azulMedio)),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      'Racha Combinada',
-                      '$totalStreak días',
-                      Icons.local_fire_department,
-                      Colors.orange,
-                    ),
-                  ),
+                  Expanded(child: _buildStatCard('Racha Combinada', '$totalStreak días', Icons.local_fire_department, Colors.orange)),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      'Mejor Racha',
-                      '$bestStreak días',
-                      Icons.emoji_events,
-                      Colors.amber,
-                    ),
-                  ),
+                  Expanded(child: _buildStatCard('Mejor Racha', '$bestStreak días', Icons.emoji_events, UnicahColors.dorado)),
                 ],
               ),
               const SizedBox(height: 24),
-              Text(
-                'Progreso por Hábito',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+              Text('Progreso por Hábito', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               ...habits.map((doc) {
                 final data = doc.data() as Map<String, dynamic>;
@@ -1279,29 +1217,21 @@ class StatsPage extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: UnicahColors.grisMedio, width: 1),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildMiniStat(Icons.check, '$progress', 'Total',
-                                Colors.green),
-                            _buildMiniStat(Icons.local_fire_department,
-                                '$streak', 'Racha', Colors.orange),
-                            _buildMiniStat(Icons.emoji_events,
-                                '$bestHabitStreak', 'Mejor', Colors.amber),
+                            _buildMiniStat(Icons.check, '$progress', 'Total', UnicahColors.azulMedio),
+                            _buildMiniStat(Icons.local_fire_department, '$streak', 'Racha', Colors.orange),
+                            _buildMiniStat(Icons.emoji_events, '$bestHabitStreak', 'Mejor', UnicahColors.dorado),
                           ],
                         ),
                       ],
@@ -1316,8 +1246,7 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -1327,44 +1256,22 @@ class StatsPage extends StatelessWidget {
           children: [
             Icon(icon, size: 36, color: color),
             const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
+            Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
             const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
+            Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMiniStat(
-      IconData icon, String value, String label, Color color) {
+  Widget _buildMiniStat(IconData icon, String value, String label, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 10, color: Colors.grey),
-        ),
+        Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
       ],
     );
   }
