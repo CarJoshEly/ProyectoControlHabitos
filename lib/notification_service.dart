@@ -34,7 +34,8 @@ class NotificationService {
     }
 
     // Configuración Android
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // Configuración iOS
     const iosSettings = DarwinInitializationSettings(
@@ -73,7 +74,7 @@ class NotificationService {
       -9: 'America/Anchorage',
       -8: 'America/Los_Angeles',
       -7: 'America/Denver',
-      -6: 'America/Mexico_City',
+      -6: 'America/Tegucigalpa',
       -5: 'America/Bogota',
       -4: 'America/Caracas',
       -3: 'America/Sao_Paulo',
@@ -111,7 +112,7 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-    
+
     debugPrint('✅ Canal de notificaciones creado');
   }
 
@@ -184,99 +185,107 @@ class NotificationService {
 
   // ============ PROGRAMAR RECORDATORIO DE HÁBITO (5 MINUTOS ANTES) ============
   Future<void> scheduleHabitReminder({
-  required String habitId,
-  required String habitName,
-  required int hour,
-  required int minute,
-  required String frequency,
-}) async {
-  if (!_initialized) await initialize();
-  if (!await _areNotificationsEnabledInPrefs()) {
-    debugPrint('⚠️ Notificaciones desactivadas - no se programó: $habitName');
-    return;
-  }
-  
-  // Generar ID numérico único
-  final notificationId = _generateNotificationId(habitId);
+    required String habitId,
+    required String habitName,
+    required int hour,
+    required int minute,
+    required String frequency,
+  }) async {
+    if (!_initialized) await initialize();
+    if (!await _areNotificationsEnabledInPrefs()) {
+      debugPrint('⚠️ Notificaciones desactivadas - no se programó: $habitName');
+      return;
+    }
 
-  // Cancelar notificación anterior si existe
-  await cancelHabitReminder(habitId);
+    // Generar ID numérico único
+    final notificationId = _generateNotificationId(habitId);
 
-  // Guardar relación habitId -> notificationId
-  await _saveHabitNotificationId(habitId, notificationId);
+    // Cancelar notificación anterior si existe
+    await cancelHabitReminder(habitId);
 
-  // Usar la hora exacta del hábito (sin modificar)
-  final scheduledTime = _nextInstanceOfTime(hour, minute);
+    // Guardar relación habitId -> notificationId
+    await _saveHabitNotificationId(habitId, notificationId);
 
-  debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  debugPrint('⏰ PROGRAMANDO NOTIFICACIÓN:');
-  debugPrint('   Hábito: $habitName');
-  debugPrint('   Hora: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
-  debugPrint('   Programada para: $scheduledTime');
-  debugPrint('   ID: $notificationId');
-  debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    // Usar la hora exacta del hábito (sin modificar)
+    final scheduledTime = _nextInstanceOfTime(hour, minute);
 
-  const androidDetails = AndroidNotificationDetails(
-    'habits_reminder_channel',
-    'Recordatorios de Hábitos',
-    channelDescription: 'Recordatorios para completar tus hábitos',
-    importance: Importance.high,
-    priority: Priority.high,
-    icon: '@mipmap/ic_launcher',
-    playSound: true,
-    enableVibration: true,
-    category: AndroidNotificationCategory.reminder,
-    visibility: NotificationVisibility.public,
-    fullScreenIntent: true,
-  );
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('⏰ PROGRAMANDO NOTIFICACIÓN:');
+    debugPrint('   Hábito: $habitName');
+    debugPrint(
+        '   Hora: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+    debugPrint('   Programada para: $scheduledTime');
+    debugPrint('   ID: $notificationId');
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  const iosDetails = DarwinNotificationDetails(
-    presentAlert: true,
-    presentBadge: true,
-    presentSound: true,
-  );
-
-  const details = NotificationDetails(
-    android: androidDetails,
-    iOS: iosDetails,
-  );
-
-  // Determinar repetición según frecuencia
-  DateTimeComponents? matchComponents;
-  switch (frequency.toLowerCase()) {
-    case 'diario':
-    case 'daily':
-      matchComponents = DateTimeComponents.time;
-      break;
-    case 'semanal':
-    case 'weekly':
-      matchComponents = DateTimeComponents.dayOfWeekAndTime;
-      break;
-    default:
-      matchComponents = DateTimeComponents.time;
-  }
-
-  try {
-    await _notifications.zonedSchedule(
-      notificationId,
-      '⏰ ¡Recordatorio!',
-      habitName,
-      scheduledTime,
-      details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: matchComponents,
-      payload: habitId,
+    const androidDetails = AndroidNotificationDetails(
+      'habits_reminder_channel',
+      'Recordatorios de Hábitos',
+      channelDescription: 'Recordatorios para completar tus hábitos',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      playSound: true,
+      enableVibration: true,
+      category: AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.public,
+      fullScreenIntent: true,
     );
 
-    debugPrint('✅ Recordatorio programado exitosamente');
-  } catch (e) {
-    debugPrint('❌ Error programando notificación: $e');
-  }
-}
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
 
-    
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    // Determinar repetición según frecuencia
+    DateTimeComponents? matchComponents;
+    switch (frequency.toLowerCase()) {
+      case 'diario':
+      case 'daily':
+        matchComponents = DateTimeComponents.time;
+        break;
+      case 'semanal':
+      case 'weekly':
+        matchComponents = DateTimeComponents.dayOfWeekAndTime;
+        break;
+      default:
+        matchComponents = DateTimeComponents.time;
+    }
+
+    if (Platform.isAndroid) {
+      final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
+      if (!exactAlarmStatus.isGranted) {
+        await Permission.scheduleExactAlarm.request();
+        debugPrint('⚠️ Permiso de alarma exacta no concedido');
+      }
+    }
+
+    try {
+      await _notifications.zonedSchedule(
+        notificationId,
+        '⏰ ¡Recordatorio!',
+        habitName,
+        scheduledTime,
+        details,
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: matchComponents,
+        payload: habitId,
+      );
+
+      debugPrint('✅ Recordatorio programado exitosamente');
+    } catch (e) {
+      debugPrint('❌ Error programando notificación: $e');
+    }
+  }
+
   // ============ CANCELAR RECORDATORIO ============
   Future<void> cancelHabitReminder(String habitId) async {
     final notificationId = await _getHabitNotificationId(habitId);
@@ -312,7 +321,8 @@ class NotificationService {
     return habitId.hashCode.abs() % 2147483647;
   }
 
-  Future<void> _saveHabitNotificationId(String habitId, int notificationId) async {
+  Future<void> _saveHabitNotificationId(
+      String habitId, int notificationId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('notification_$habitId', notificationId);
   }
@@ -341,9 +351,10 @@ class NotificationService {
     final status = await Permission.notification.status;
     return status.isGranted;
   }
+
   // Agregar este método (después de areNotificationsEnabled)
-Future<bool> _areNotificationsEnabledInPrefs() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('notifications') ?? true;
-}
+  Future<bool> _areNotificationsEnabledInPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('notifications') ?? true;
+  }
 }
