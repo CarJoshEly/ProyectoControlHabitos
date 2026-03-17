@@ -3,6 +3,7 @@ google-services.json
 GoogleService-Info.plist
 lib/firebase_options.dart
 lib/firebase_config.dart
+lib/ai_service.dart
 
 # Keys
 *.keystore
@@ -60,4 +61,4 @@ app.*.map.json
 /android/app/profile
 /android/app/
 
-lib/ai_service.dart
+

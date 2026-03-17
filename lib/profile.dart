@@ -9,6 +9,11 @@ import 'login.dart';
 import 'theme_provider.dart';
 import 'notification_service.dart';
 
+// Colores UNICAH
+const _azulOscuro = Color(0xFF003087);
+const _azulMedio  = Color(0xFF0057B8);
+const _dorado     = Color(0xFFC8A84B);
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -37,11 +42,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadProfile() async {
     final user = _auth.currentUser;
     if (user == null) return;
-
     try {
       final doc = await _fs.collection('users').doc(user.uid).get();
       final data = doc.data();
-
       if (data != null && mounted) {
         setState(() {
           _nameCtrl.text = data['displayName'] ?? user.displayName ?? '';
@@ -51,66 +54,30 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       // Error silencioso
     } finally {
-      if (mounted) {
-        setState(() => _loadingProfile = false);
-      }
+      if (mounted) setState(() => _loadingProfile = false);
     }
   }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 75,
-      );
-
+      final XFile? image = await _picker.pickImage(source: source, maxWidth: 512, maxHeight: 512, imageQuality: 75);
       if (image == null) return;
-
-      setState(() {
-        _loading = true;
-        _localImage = File(image.path);
-      });
-
+      setState(() { _loading = true; _localImage = File(image.path); });
       final user = _auth.currentUser;
-      if (user == null) {
-        setState(() => _loading = false);
-        return;
-      }
-
+      if (user == null) { setState(() => _loading = false); return; }
       final ref = _storage.ref().child('profile_photos/${user.uid}.jpg');
       await ref.putFile(File(image.path));
       final downloadUrl = await ref.getDownloadURL();
-
-      await _fs.collection('users').doc(user.uid).update({
-        'photoUrl': downloadUrl,
-      });
-
+      await _fs.collection('users').doc(user.uid).update({'photoUrl': downloadUrl});
       await user.updatePhotoURL(downloadUrl);
-
       if (mounted) {
-        setState(() {
-          _photoUrl = downloadUrl;
-          _loading = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✓ Foto de perfil actualizada'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        setState(() { _photoUrl = downloadUrl; _loading = false; });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✓ Foto de perfil actualizada'), backgroundColor: _azulMedio));
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _loading = false;
-          _localImage = null;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al actualizar foto'), backgroundColor: Colors.red),
-        );
+        setState(() { _loading = false; _localImage = null; });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al actualizar foto'), backgroundColor: Colors.red));
       }
     }
   }
@@ -118,45 +85,24 @@ class _ProfilePageState extends State<ProfilePage> {
   void _showImageOptions() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+              Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
               ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.teal,
-                  child: Icon(Icons.photo_camera, color: Colors.white),
-                ),
+                leading: const CircleAvatar(backgroundColor: _azulOscuro, child: Icon(Icons.photo_camera, color: Colors.white)),
                 title: const Text('Tomar foto'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(ImageSource.camera);
-                },
+                onTap: () { Navigator.pop(context); _pickImage(ImageSource.camera); },
               ),
               ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.photo_library, color: Colors.white),
-                ),
+                leading: const CircleAvatar(backgroundColor: _azulMedio, child: Icon(Icons.photo_library, color: Colors.white)),
                 title: const Text('Elegir de galería'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(ImageSource.gallery);
-                },
+                onTap: () { Navigator.pop(context); _pickImage(ImageSource.gallery); },
               ),
               const SizedBox(height: 10),
             ],
@@ -168,52 +114,36 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _showEditNameDialog() {
     final nameController = TextEditingController(text: _nameCtrl.text);
-
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.edit, color: Colors.teal),
-            SizedBox(width: 8),
-            Text('Editar nombre'),
-          ],
-        ),
+        title: const Row(children: [Icon(Icons.edit, color: _azulOscuro), SizedBox(width: 8), Text('Editar nombre')]),
         content: TextField(
           controller: nameController,
           autofocus: true,
           decoration: InputDecoration(
             labelText: 'Nombre',
             hintText: 'Ingresa tu nombre',
-            prefixIcon: const Icon(Icons.person),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            prefixIcon: const Icon(Icons.person, color: _azulMedio),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _azulMedio, width: 2)),
           ),
           textCapitalization: TextCapitalization.words,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar', style: TextStyle(color: _azulMedio))),
           ElevatedButton(
             onPressed: () async {
               final name = nameController.text.trim();
               if (name.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('El nombre no puede estar vacío')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El nombre no puede estar vacío')));
                 return;
               }
               Navigator.pop(ctx);
               await _updateName(name);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: _azulOscuro, foregroundColor: Colors.white),
             child: const Text('Guardar'),
           ),
         ],
@@ -224,94 +154,46 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _updateName(String name) async {
     final user = _auth.currentUser;
     if (user == null) return;
-
     setState(() => _loading = true);
-
     try {
-      await _fs.collection('users').doc(user.uid).set({
-        'displayName': name,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      try {
-        await user.updateDisplayName(name);
-      } catch (_) {}
-
+      await _fs.collection('users').doc(user.uid).set({'displayName': name, 'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+      try { await user.updateDisplayName(name); } catch (_) {}
       if (!mounted) return;
-
-      setState(() {
-        _nameCtrl.text = name;
-        _loading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✓ Nombre actualizado'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      setState(() { _nameCtrl.text = name; _loading = false; });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✓ Nombre actualizado'), backgroundColor: _azulMedio));
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al actualizar nombre'), backgroundColor: Colors.red),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al actualizar nombre'), backgroundColor: Colors.red));
     }
   }
 
   Future<void> _signOut() async {
     await _auth.signOut();
     if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false,
-      );
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginPage()), (route) => false);
     }
   }
 
   Future<void> _showPendingNotifications() async {
     try {
       final pendingList = await NotificationService().getPendingNotifications();
-
       if (!mounted) return;
-
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.schedule, color: Colors.teal),
-              const SizedBox(width: 8),
-              Text('Recordatorios (${pendingList.length})'),
-            ],
-          ),
+          title: Row(children: [const Icon(Icons.schedule, color: _azulOscuro), const SizedBox(width: 8), Text('Recordatorios (${pendingList.length})')]),
           content: SizedBox(
             width: double.maxFinite,
             height: 300,
             child: pendingList.isEmpty
-                ? const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.notifications_off, size: 48, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text('No hay recordatorios programados'),
-                      ],
-                    ),
-                  )
+                ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.notifications_off, size: 48, color: Colors.grey), SizedBox(height: 8), Text('No hay recordatorios programados')]))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: pendingList.length,
                     itemBuilder: (_, i) {
                       final item = pendingList[i];
-                      return Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.alarm, color: Colors.teal),
-                          title: Text(item.title ?? 'Sin título'),
-                          subtitle: Text(item.body ?? ''),
-                        ),
-                      );
+                      return Card(child: ListTile(leading: const Icon(Icons.alarm, color: _azulMedio), title: Text(item.title ?? 'Sin título'), subtitle: Text(item.body ?? '')));
                     },
                   ),
           ),
@@ -319,28 +201,20 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () async {
                 await NotificationService().cancelAllNotifications();
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Todas canceladas')),
-                  );
-                }
+                if (mounted) { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Todas canceladas'))); }
               },
               child: const Text('Cancelar Todas', style: TextStyle(color: Colors.red)),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar'),
+              style: ElevatedButton.styleFrom(backgroundColor: _azulOscuro),
+              child: const Text('Cerrar', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
       );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al cargar recordatorios'), backgroundColor: Colors.red),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al cargar recordatorios'), backgroundColor: Colors.red));
     }
   }
 
@@ -348,9 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.9,
         minChildSize: 0.5,
@@ -358,31 +230,16 @@ class _ProfilePageState extends State<ProfilePage> {
         expand: false,
         builder: (context, scrollController) => Column(
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  const Icon(Icons.description, color: Colors.teal, size: 28),
+                  const Icon(Icons.description, color: _azulOscuro, size: 28),
                   const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      'Términos y Condiciones',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
+                  const Expanded(child: Text('Términos y Condiciones', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
                 ],
               ),
             ),
@@ -394,76 +251,30 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Center(
-                      child: Text(
-                        'Mis Hábitos',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
-                      ),
-                    ),
+                    const Center(child: Text('Control Hábitos UNICAH', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _azulOscuro))),
                     const SizedBox(height: 8),
-                    Center(
-                      child: Text(
-                        'Última actualización: 8 de diciembre de 2025',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ),
+                    Center(child: Text('Última actualización: 2026', style: TextStyle(fontSize: 12, color: Colors.grey[600]))),
                     const SizedBox(height: 24),
-                    _buildSection(
-                      '1. Aceptación de los términos',
-                      'Al crear una cuenta y utilizar la aplicación Mis Hábitos, aceptas cumplir estos Términos y Condiciones, así como nuestras políticas de privacidad y uso de datos.',
-                    ),
-                    _buildSection(
-                      '2. Uso de la aplicación',
-                      'La aplicación está diseñada para ayudarte a crear, registrar y dar seguimiento a tus hábitos cotidianos diariamente. Te comprometes a utilizarla de forma responsable, sin realizar actividades que puedan afectar el funcionamiento de la app.',
-                    ),
-                    _buildSection(
-                      '3. Registro y seguridad de la cuenta',
-                      'Eres responsable de mantener la confidencialidad de tus datos y contraseñas. No está permitido que prestes tu cuenta.',
-                    ),
-                    _buildSection(
-                      '4. Datos y privacidad',
-                      'Los datos que registras sobre tus hábitos se utilizan únicamente para mostrarte estadísticas, rachas y recordatorios dentro de la aplicación. No compartimos tu información personal con nadie más, sin tu consentimiento.',
-                    ),
-                    _buildSubSection(
-                      'Cámara',
-                      'Estás de acuerdo a utilizar la cámara, las fotografías que se utilizan no están expuestas a terceros, ni las almacenamos, se usan estrictamente solo para tu uso personal con el fin de que tu experiencia sea más personalizada.',
-                    ),
-                    _buildSubSection(
-                      'Almacenamiento',
-                      'Tus datos como usuario y contraseña se almacenan en nuestra base de datos, solo con la finalidad de mantener un orden y conteo de las personas que utilizan nuestra app, datos a los que solo se tiene acceso estrictamente, pero que no se muestran a demás personas ajenas de nuestro equipo de base de datos.',
-                    ),
-                    _buildSection(
-                      '5. Licencia de uso',
-                      'Se te concede una licencia personal, ilimitada para utilizar la aplicación. No puedes modificar, ni distribuir partes del sistema sin autorización escrita de nuestro equipo.',
-                    ),
-                    _buildSection(
-                      '6. Limitación de responsabilidad',
-                      'La aplicación se ofrece "tal cual". No garantizamos resultados específicos en tus hábitos. Ya que eso es una decisión personal, ni nos hacemos responsables por pérdidas o daños derivados del uso excesivo de nuestra app.',
-                    ),
-                    _buildSection(
-                      '7. Modificaciones',
-                      'Podemos actualizar estos términos cuando consideremos sea necesario. Si realizamos cambios importantes, se te notificará mediante los medios de contacto registrados, como ser tu correo.',
-                    ),
-                    _buildSection(
-                      '8. Contacto',
-                      'Si tienes dudas sobre estos Términos y Condiciones, puedes comunicarte con el equipo de soporte de Mis Hábitos, en nuestras redes sociales, será un placer atenderte.',
-                    ),
+                    _buildSection('1. Aceptación de los términos', 'Al crear una cuenta y utilizar la aplicación Control Hábitos UNICAH, aceptas cumplir estos Términos y Condiciones, así como nuestras políticas de privacidad y uso de datos.'),
+                    _buildSection('2. Uso de la aplicación', 'La aplicación está diseñada exclusivamente para estudiantes activos de la UNICAH. Te comprometes a utilizarla de forma responsable para mejorar tus hábitos académicos y personales.'),
+                    _buildSection('3. Registro y seguridad de la cuenta', 'Solo se permite el acceso con correo institucional @unicah.edu. Eres responsable de mantener la confidencialidad de tus datos y contraseñas.'),
+                    _buildSection('4. Datos y privacidad', 'Los datos que registras sobre tus hábitos se utilizan únicamente para mostrarte estadísticas, rachas y recordatorios dentro de la aplicación. No compartimos tu información personal con nadie más, sin tu consentimiento.'),
+                    _buildSection('5. Inteligencia Artificial', 'El apartado de IA procesa texto ingresado por el usuario para generar respuestas personalizadas mediante la API de Gemini de Google. No almacenamos las conversaciones con la IA en nuestra base de datos.'),
+                    _buildSection('6. Licencia de uso', 'Se te concede una licencia personal para utilizar la aplicación. No puedes modificar, ni distribuir partes del sistema sin autorización escrita del equipo de desarrollo.'),
+                    _buildSection('7. Modificaciones', 'Podemos actualizar estos términos cuando consideremos sea necesario. Se te notificará mediante tu correo institucional.'),
+                    _buildSection('8. Contacto', 'Si tienes dudas sobre estos Términos y Condiciones, puedes comunicarte con el equipo de soporte.'),
                     const SizedBox(height: 20),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.teal.withOpacity(0.1),
+                        gradient: const LinearGradient(colors: [_azulOscuro, _azulMedio]),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        '¡Esperamos disfrutes nuestra aplicación y Bienvenid@!!',
+                        '🎓 ¡Bienvenido a la comunidad UNICAH!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -483,35 +294,9 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _azulOscuro)),
           const SizedBox(height: 8),
-          Text(
-            content,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubSection(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            content,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
-          ),
+          Text(content, style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5)),
         ],
       ),
     );
@@ -519,18 +304,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _toggleNotifications(ThemeProvider themeProvider, bool value) async {
     final user = _auth.currentUser;
-    
     themeProvider.toggleNotifications(value);
-    
-    if (!value) {
-      await NotificationService().cancelAllNotifications();
-    }
-    
-    if (user != null) {
-      await _fs.collection('users').doc(user.uid).set({
-        'notificationsEnabled': value,
-      }, SetOptions(merge: true));
-    }
+    if (!value) await NotificationService().cancelAllNotifications();
+    if (user != null) await _fs.collection('users').doc(user.uid).set({'notificationsEnabled': value}, SetOptions(merge: true));
   }
 
   Widget _buildPreferencesCard(ThemeProvider themeProvider) {
@@ -542,50 +318,28 @@ class _ProfilePageState extends State<ProfilePage> {
           SwitchListTile(
             secondary: Icon(
               themeProvider.darkMode ? Icons.dark_mode : Icons.light_mode,
-              color: themeProvider.darkMode ? Colors.amber : Colors.orange,
+              color: themeProvider.darkMode ? _dorado : _azulMedio,
             ),
             title: const Text('Tema oscuro'),
-            subtitle: Text(
-              themeProvider.darkMode ? 'Activado' : 'Desactivado',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            ),
+            subtitle: Text(themeProvider.darkMode ? 'Activado' : 'Desactivado', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
             value: themeProvider.darkMode,
-            activeColor: Colors.teal,
-            onChanged: (v) {
-              themeProvider.toggleTheme(v);
-            },
+            activeColor: _azulOscuro,
+            onChanged: (v) => themeProvider.toggleTheme(v),
           ),
-          /*const Divider(height: 1),
-          SwitchListTile(
-            secondary: Icon(
-              themeProvider.notificationsEnabled
-                  ? Icons.notifications_active
-                  : Icons.notifications_off,
-              color: themeProvider.notificationsEnabled ? Colors.teal : Colors.grey,
-            ),
-            title: const Text('Notificaciones'),
-            subtitle: Text(
-              themeProvider.notificationsEnabled ? 'Activadas' : 'Desactivadas',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            ),
-            value: themeProvider.notificationsEnabled,
-            activeColor: Colors.teal,
-            onChanged: (v) => _toggleNotifications(themeProvider, v),
-          ),*/
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.description, color: Colors.teal),
+            leading: const Icon(Icons.description, color: _azulOscuro),
             title: const Text('Términos y Condiciones'),
             subtitle: const Text('Políticas de uso y privacidad'),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right, color: _azulMedio),
             onTap: _showTermsAndConditions,
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.schedule, color: Colors.orange),
+            leading: const Icon(Icons.schedule, color: _dorado),
             title: const Text('Ver Recordatorios'),
             subtitle: const Text('Notificaciones programadas'),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right, color: _azulMedio),
             onTap: _showPendingNotifications,
           ),
         ],
@@ -593,37 +347,24 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoRow(
-    IconData icon,
-    String label,
-    String value, {
-    bool editable = false,
-    VoidCallback? onEdit,
-  }) {
+  Widget _buildInfoRow(IconData icon, String label, String value, {bool editable = false, VoidCallback? onEdit}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, color: Colors.teal, size: 24),
+          Icon(icon, color: _azulOscuro, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 Text(value, style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
           if (editable && onEdit != null)
-            IconButton(
-              onPressed: onEdit,
-              icon: const Icon(Icons.edit, size: 20),
-              color: Colors.teal,
-            ),
+            IconButton(onPressed: onEdit, icon: const Icon(Icons.edit, size: 20, color: _azulMedio)),
         ],
       ),
     );
@@ -632,9 +373,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (_loadingProfile) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: _azulOscuro)));
     }
 
     final user = _auth.currentUser;
@@ -651,21 +390,23 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           children: [
             const SizedBox(height: 10),
+
+            // Foto de perfil
             Stack(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.teal, width: 3),
+                    gradient: const LinearGradient(colors: [_azulOscuro, _dorado]),
+                    boxShadow: [BoxShadow(color: _azulOscuro.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
+                  padding: const EdgeInsets.all(3),
                   child: CircleAvatar(
                     radius: 70,
                     backgroundColor: Colors.grey[300],
                     backgroundImage: _localImage != null
                         ? FileImage(_localImage!)
-                        : (_photoUrl != null && _photoUrl!.isNotEmpty
-                            ? NetworkImage(_photoUrl!) as ImageProvider
-                            : null),
+                        : (_photoUrl != null && _photoUrl!.isNotEmpty ? NetworkImage(_photoUrl!) as ImageProvider : null),
                     child: (_localImage == null && (_photoUrl == null || _photoUrl!.isEmpty))
                         ? const Icon(Icons.person, size: 70, color: Colors.white)
                         : null,
@@ -674,13 +415,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (_loading)
                   Positioned.fill(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.4),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
+                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                      child: const Center(child: CircularProgressIndicator(color: Colors.white)),
                     ),
                   ),
                 Positioned(
@@ -691,9 +427,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.teal,
+                        color: _dorado,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [BoxShadow(color: _dorado.withOpacity(0.4), blurRadius: 6)],
                       ),
                       child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
                     ),
@@ -702,6 +439,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 24),
+
+            // Nombre
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -712,17 +451,33 @@ class _ProfilePageState extends State<ProfilePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                IconButton(
-                  onPressed: _showEditNameDialog,
-                  icon: const Icon(Icons.edit, color: Colors.teal),
-                ),
+                IconButton(onPressed: _showEditNameDialog, icon: const Icon(Icons.edit, color: _azulMedio)),
               ],
             ),
-            Text(
-              user?.email ?? 'correo@ejemplo.com',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+
+            // Badge correo institucional
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: _azulOscuro.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: _azulOscuro.withOpacity(0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.school, size: 14, color: _azulOscuro),
+                  const SizedBox(width: 4),
+                  Text(
+                    user?.email ?? 'correo@unicah.edu',
+                    style: const TextStyle(fontSize: 14, color: _azulOscuro),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
+
+            // Información de la cuenta
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -731,42 +486,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Información de la cuenta',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    const Row(
+                      children: [
+                        Icon(Icons.person, color: _azulOscuro),
+                        SizedBox(width: 8),
+                        Text('Información de la cuenta', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ],
                     ),
                     const SizedBox(height: 16),
-                    _buildInfoRow(
-                      Icons.person,
-                      'Nombre',
-                      _nameCtrl.text.isEmpty ? 'No establecido' : _nameCtrl.text,
-                      editable: true,
-                      onEdit: _showEditNameDialog,
-                    ),
+                    _buildInfoRow(Icons.person, 'Nombre', _nameCtrl.text.isEmpty ? 'No establecido' : _nameCtrl.text, editable: true, onEdit: _showEditNameDialog),
                     const Divider(),
-                    _buildInfoRow(
-                      Icons.email,
-                      'Correo electrónico',
-                      user?.email ?? 'No disponible',
-                      editable: false,
-                    ),
+                    _buildInfoRow(Icons.email, 'Correo institucional', user?.email ?? 'No disponible'),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
+
             const Align(
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),
-                child: Text(
-                  'Preferencias',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: Text('Preferencias', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
             _buildPreferencesCard(themeProvider),
             const SizedBox(height: 32),
+
+            // Botón cerrar sesión
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
