@@ -150,8 +150,11 @@ class _LoginPageState extends State<LoginPage> {
     await _setLoading(true);
     try {
       const webClientID =
-          "1058689194132-76at03bp255ipm7d17eh78vrjg2iuvti.apps.googleusercontent.com";
-      final GoogleSignIn googleSignIn = GoogleSignIn(clientId: webClientID);
+          "283327600463-hj94nku5bv9vbq130jvln1hro2057u7g.apps.googleusercontent.com";
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: webClientID,
+        serverClientId: webClientID,
+      );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         await _setLoading(false);

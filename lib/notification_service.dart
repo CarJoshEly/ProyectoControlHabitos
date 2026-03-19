@@ -5,6 +5,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:typed_data';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -20,10 +21,8 @@ class NotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Inicializar timezone
     tz_data.initializeTimeZones();
 
-    // Obtener zona horaria local basada en el offset del dispositivo
     final String timeZoneName = _getLocalTimezone();
     try {
       tz.setLocalLocation(tz.getLocation(timeZoneName));
@@ -33,11 +32,9 @@ class NotificationService {
       tz.setLocalLocation(tz.getLocation('UTC'));
     }
 
-    // Configuración Android
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // Configuración iOS
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -54,19 +51,16 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Crear canal de notificaciones para Android
-    await _createNotificationChannel();
+    await _createNotificationChannels();
 
     _initialized = true;
     debugPrint('✅ NotificationService inicializado');
   }
 
-  // Obtener zona horaria basada en el offset del dispositivo
   String _getLocalTimezone() {
     final now = DateTime.now();
     final offset = now.timeZoneOffset.inHours;
 
-    // Mapa de offsets a zonas horarias comunes
     final Map<int, String> timezoneMap = {
       -12: 'Etc/GMT+12',
       -11: 'Pacific/Midway',
@@ -98,8 +92,9 @@ class NotificationService {
     return timezoneMap[offset] ?? 'UTC';
   }
 
-  Future<void> _createNotificationChannel() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  Future<void> _createNotificationChannels() async {
+    const AndroidNotificationChannel reminderChannel =
+        AndroidNotificationChannel(
       'habits_reminder_channel',
       'Recordatorios de Hábitos',
       description: 'Notificaciones para recordar tus hábitos diarios',
@@ -108,12 +103,25 @@ class NotificationService {
       enableVibration: true,
     );
 
-    await _notifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    const AndroidNotificationChannel alarmChannel = AndroidNotificationChannel(
+      'habits_alarm_channel',
+      'Alarmas de Hábitos',
+      description: 'Alarmas para hábitos importantes',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      showBadge: true,
+    );
 
-    debugPrint('✅ Canal de notificaciones creado');
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    await androidPlugin?.createNotificationChannel(reminderChannel);
+    await androidPlugin?.createNotificationChannel(alarmChannel);
+
+    debugPrint('✅ Canales de notificaciones creados');
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -124,28 +132,41 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     bool granted = true;
 
-    // Permiso de notificaciones
     if (await Permission.notification.isDenied) {
       final status = await Permission.notification.request();
       debugPrint('📱 Permiso notificación: $status');
       granted = status.isGranted;
     }
 
-    // Permiso de alarmas exactas (Android 12+)
     if (Platform.isAndroid) {
       if (await Permission.scheduleExactAlarm.isDenied) {
         final status = await Permission.scheduleExactAlarm.request();
         debugPrint('⏰ Permiso alarma exacta: $status');
       }
+
+      if (await Permission.systemAlertWindow.isDenied) {
+        await Permission.systemAlertWindow.request();
+        debugPrint('🔔 Permiso system alert window solicitado');
+      }
     }
 
     if (granted) {
-      debugPrint('✅ Permisos de notificación concedidos');
+      debugPrint('✅ Permisos concedidos');
     } else {
-      debugPrint('❌ Permisos de notificación denegados');
+      debugPrint('❌ Permisos denegados');
     }
 
     return granted;
+  }
+
+  // Se llama con delay desde main para no reiniciar la sesión de Firebase
+  Future<void> requestBatteryOptimizationPermission() async {
+    if (!Platform.isAndroid) return;
+    final status = await Permission.ignoreBatteryOptimizations.status;
+    if (!status.isGranted) {
+      await Permission.ignoreBatteryOptimizations.request();
+      debugPrint('🔋 Permiso optimización de batería solicitado');
+    }
   }
 
   // ============ NOTIFICACIÓN DE PRUEBA ============
@@ -183,13 +204,14 @@ class NotificationService {
     debugPrint('📬 Notificación de prueba enviada');
   }
 
-  // ============ PROGRAMAR RECORDATORIO DE HÁBITO (5 MINUTOS ANTES) ============
+  // ============ PROGRAMAR RECORDATORIO ============
   Future<void> scheduleHabitReminder({
     required String habitId,
     required String habitName,
     required int hour,
     required int minute,
     required String frequency,
+    String reminderType = 'notification',
   }) async {
     if (!_initialized) await initialize();
     if (!await _areNotificationsEnabledInPrefs()) {
@@ -197,16 +219,10 @@ class NotificationService {
       return;
     }
 
-    // Generar ID numérico único
     final notificationId = _generateNotificationId(habitId);
-
-    // Cancelar notificación anterior si existe
     await cancelHabitReminder(habitId);
-
-    // Guardar relación habitId -> notificationId
     await _saveHabitNotificationId(habitId, notificationId);
 
-    // Usar la hora exacta del hábito (sin modificar)
     final scheduledTime = _nextInstanceOfTime(hour, minute);
 
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -214,23 +230,44 @@ class NotificationService {
     debugPrint('   Hábito: $habitName');
     debugPrint(
         '   Hora: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+    debugPrint('   Tipo: $reminderType');
     debugPrint('   Programada para: $scheduledTime');
     debugPrint('   ID: $notificationId');
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    const androidDetails = AndroidNotificationDetails(
-      'habits_reminder_channel',
-      'Recordatorios de Hábitos',
-      channelDescription: 'Recordatorios para completar tus hábitos',
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-      playSound: true,
-      enableVibration: true,
-      category: AndroidNotificationCategory.reminder,
-      visibility: NotificationVisibility.public,
-      fullScreenIntent: true,
-    );
+    final AndroidNotificationDetails androidDetails;
+
+    if (reminderType == 'alarm') {
+      androidDetails = AndroidNotificationDetails(
+        'habits_alarm_channel',
+        'Alarmas de Hábitos',
+        channelDescription: 'Alarmas para hábitos importantes',
+        importance: Importance.max,
+        priority: Priority.max,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+        fullScreenIntent: true,
+        category: AndroidNotificationCategory.alarm,
+        visibility: NotificationVisibility.public,
+        ongoing: false,
+        additionalFlags: Int32List.fromList([4, 128]),
+      );
+    } else {
+      androidDetails = const AndroidNotificationDetails(
+        'habits_reminder_channel',
+        'Recordatorios de Hábitos',
+        channelDescription: 'Recordatorios para completar tus hábitos',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+        category: AndroidNotificationCategory.reminder,
+        visibility: NotificationVisibility.public,
+        fullScreenIntent: false,
+      );
+    }
 
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -238,12 +275,11 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
 
-    // Determinar repetición según frecuencia
     DateTimeComponents? matchComponents;
     switch (frequency.toLowerCase()) {
       case 'diario':
@@ -254,6 +290,10 @@ class NotificationService {
       case 'weekly':
         matchComponents = DateTimeComponents.dayOfWeekAndTime;
         break;
+      case 'mensual':
+      case 'monthly':
+        matchComponents = DateTimeComponents.dayOfMonthAndTime;
+        break;
       default:
         matchComponents = DateTimeComponents.time;
     }
@@ -262,14 +302,13 @@ class NotificationService {
       final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
       if (!exactAlarmStatus.isGranted) {
         await Permission.scheduleExactAlarm.request();
-        debugPrint('⚠️ Permiso de alarma exacta no concedido');
       }
     }
 
     try {
       await _notifications.zonedSchedule(
         notificationId,
-        '⏰ ¡Recordatorio!',
+        reminderType == 'alarm' ? '⏰ ¡Alarma!' : '🔔 ¡Recordatorio!',
         habitName,
         scheduledTime,
         details,
@@ -309,7 +348,6 @@ class NotificationService {
       minute,
     );
 
-    // Si ya pasó la hora hoy, programar para mañana
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -352,7 +390,6 @@ class NotificationService {
     return status.isGranted;
   }
 
-  // Agregar este método (después de areNotificationsEnabled)
   Future<bool> _areNotificationsEnabledInPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('notifications') ?? true;

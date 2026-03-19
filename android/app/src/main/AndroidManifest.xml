@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permisos -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -8,12 +7,15 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- Necesario para que las notificaciones lleguen en release sin que el sistema las mate -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:label="Control Hábitos"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,13 +36,21 @@
             </intent-filter>
         </activity>
 
+        <activity-alias
+            android:name=".AlarmActivity"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:launchMode="singleTop"/>
+
         <!-- Receivers para notificaciones locales programadas -->
-        <receiver 
-            android:exported="false" 
-            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
-        
-        <receiver 
-            android:exported="false" 
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
+
+        <receiver
+            android:exported="false"
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -49,20 +59,26 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
-        
-        <receiver 
+
+        <receiver
             android:exported="false"
-            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"/>
+
+        <!-- Mantiene las notificaciones activas en segundo plano -->
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+            android:exported="false"
+            android:stopWithTask="false"/>
 
         <!-- Firebase Messaging -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="fcm_channel" />
+            android:value="fcm_channel"/>
 
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
-            
+            android:value="2"/>
+
     </application>
 
     <queries>
@@ -73,8 +89,9 @@
     </queries>
     <queries>
         <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
+
 </manifest>

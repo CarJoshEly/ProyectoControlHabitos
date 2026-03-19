@@ -28,6 +28,7 @@ class FirestoneService {
     String description,
     String frequency, {
     TimeOfDay? reminderTime,
+    String reminderType = 'notification',
   }) async {
     final uid = currentUserId;
     if (uid == null) return null;
@@ -45,17 +46,17 @@ class FirestoneService {
       'completionHistory': <String>[],
       'reminderHour': reminderTime?.hour,
       'reminderMinute': reminderTime?.minute,
+      'reminderType': reminderTime != null ? reminderType : null,
     });
 
-    // PROGRAMAR NOTIFICACIÓN SI HAY RECORDATORIO
     if (reminderTime != null) {
-      debugPrint('📅 Programando recordatorio para: $name');
       await _notificationService.scheduleHabitReminder(
         habitId: docRef.id,
         habitName: name,
         hour: reminderTime.hour,
         minute: reminderTime.minute,
         frequency: frequency,
+        reminderType: reminderType, // FIX: antes no se pasaba este parámetro
       );
     }
 
@@ -69,6 +70,7 @@ class FirestoneService {
     String description,
     String frequency, {
     TimeOfDay? reminderTime,
+    String reminderType = 'notification',
   }) async {
     await _habitsCollection.doc(id).update({
       'name': name,
@@ -76,33 +78,32 @@ class FirestoneService {
       'frequency': frequency,
       'reminderHour': reminderTime?.hour,
       'reminderMinute': reminderTime?.minute,
+      'reminderType': reminderTime != null ? reminderType : null,
     });
 
-    // ACTUALIZAR O CANCELAR NOTIFICACIÓN
     if (reminderTime != null) {
-      debugPrint('📅 Actualizando recordatorio para: $name');
       await _notificationService.scheduleHabitReminder(
         habitId: id,
         habitName: name,
         hour: reminderTime.hour,
         minute: reminderTime.minute,
         frequency: frequency,
+        reminderType: reminderType,
       );
     } else {
-      debugPrint('🗑️ Cancelando recordatorio para: $name');
       await _notificationService.cancelHabitReminder(id);
     }
   }
 
   // ============ ELIMINAR HÁBITO ============
   Future<void> deleteHabit(String id) async {
-    // Cancelar notificación antes de eliminar
     await _notificationService.cancelHabitReminder(id);
     await _habitsCollection.doc(id).delete();
   }
 
   // ============ TOGGLE COMPLETADO ============
-  Future<void> toggleHabitCompletedForDate(String id, bool completed, DateTime date) async {
+  Future<void> toggleHabitCompletedForDate(
+      String id, bool completed, DateTime date) async {
     final doc = _habitsCollection.doc(id);
     final snapshot = await doc.get();
 
@@ -139,7 +140,8 @@ class FirestoneService {
       'progress': currentProgress,
       'streak': currentStreak,
       'bestStreak': bestStreak,
-      'lastCompleted': completed ? FieldValue.serverTimestamp() : data['lastCompleted'],
+      'lastCompleted':
+          completed ? FieldValue.serverTimestamp() : data['lastCompleted'],
       'completionHistory': history,
     });
   }
